@@ -1,1 +1,1 @@
-from .fourier import *
+from .image_completion import *
