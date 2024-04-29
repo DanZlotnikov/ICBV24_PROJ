@@ -8,9 +8,9 @@ class Image:
     def __init__(self, image_path):
         self.image_path = image_path
         self.img = cv.imread(image_path)
-        self.gray_img = cv.cvtColor(self.img, cv.COLOR_BGR2GRAY)
-        self.clicked_points = []
-        self.polygon_closed = False
+        self.gray_img = cv.cvtColor(self.img, cv.COLOR_RGB2GRAY)
+        self.rect_points = []
+        self.rectangle_created = False
 
     def plot(self):
         # Plot the image on an xy plane
@@ -26,57 +26,42 @@ class Image:
         plt.show()
 
     def onclick(self, event):
-        if self.polygon_closed:
-            return  # Don't add more points if the polygon is closed
+        if self.rectangle_created:
+            return  # Don't add more points if the rectangle is already created
 
         if event.xdata is not None and event.ydata is not None:
             x = event.xdata
             y = event.ydata
-            if event.button == 1:  # Left click
-                print(f'You clicked at x = {x}, y = {y}')
-                self.clicked_points.append((x, y))
+            self.rect_points.append((x, y))
 
-                # Plot a line from the last selected point to the new one
-                if len(self.clicked_points) > 1:
-                    last_x, last_y = self.clicked_points[-2]
-                    plt.plot([last_x, x], [last_y, y], color='red')
+            # Plot the selected point
+            plt.plot(x, y, 'ro')
 
-            elif event.button == 3:  # Right click
-                # Close the polygon
-                if len(self.clicked_points) > 2:
-                    last_x, last_y = self.clicked_points[-1]
-                    first_x, first_y = self.clicked_points[0]
-                    plt.plot([last_x, first_x], [last_y, first_y], color='red')
-                    self.polygon_closed = True
+            # Draw rectangle if two points are selected
+            if len(self.rect_points) == 2:
+                x1, y1 = self.rect_points[0]
+                x2, y2 = self.rect_points[1]
+                xmin = min(x1, x2)
+                xmax = max(x1, x2)
+                ymin = min(y1, y2)
+                ymax = max(y1, y2)
+                plt.plot([xmin, xmax], [ymin, ymin], color='red')
+                plt.plot([xmin, xmax], [ymax, ymax], color='red')
+                plt.plot([xmin, xmin], [ymin, ymax], color='red')
+                plt.plot([xmax, xmax], [ymin, ymax], color='red')
+                self.rectangle_created = True
 
             # Refresh the plot
             plt.draw()
 
     def onkeypress(self, event):
         if event.key == ' ':  # Spacebar pressed
-            if self.polygon_closed:
-                polygon_points = np.array(self.clicked_points)
-                min_x, min_y = polygon_points.min(axis=0)
-                max_x, max_y = polygon_points.max(axis=0)
+            if self.rectangle_created:
+                min_x, min_y = self.rect_points[0]
+                max_x, max_y = self.rect_points[1]
                 for i in range(int(min_y), int(max_y) + 1):
                     for j in range(int(min_x), int(max_x) + 1):
-                        if self.point_inside_polygon(j, i, polygon_points):
-                            self.gray_img[i, j] = random.randint(0, 255)
+                        self.gray_img[i, j] = random.randint(0, 255)
                 plt.imshow(self.gray_img, cmap='gray')
                 plt.draw()
 
-    def point_inside_polygon(self, x, y, poly):
-        n = len(poly)
-        inside = False
-        p1x, p1y = poly[0]
-        for i in range(1, n + 1):
-            p2x, p2y = poly[i % n]
-            if y > min(p1y, p2y):
-                if y <= max(p1y, p2y):
-                    if x <= max(p1x, p2x):
-                        if p1y != p2y:
-                            xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                        if p1x == p2x or x <= xinters:
-                            inside = not inside
-            p1x, p1y = p2x, p2y
-        return inside

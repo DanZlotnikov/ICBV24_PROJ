@@ -1,26 +1,32 @@
-import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
 
-def point_inside_polygon(x, y, poly):
-    n = len(poly)
-    inside = False
-    p1x, p1y = poly[0]
-    for i in range(1, n + 1):
-        p2x, p2y = poly[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
-        p1x, p1y = p2x, p2y
-    return inside
 
-def points_inside_polygon(points, polygon):
-    inside_points = []
-    for point in points:
-        x, y = point
-        if point_inside_polygon(x, y, polygon):
-            inside_points.append(point)
-    return inside_points
+def fourier_predict_polygon(image):
+    # Create a mask to ignore points inside the polygon
+    mask = np.ones_like(image.gray_img, dtype=bool)
+    if image.polygon_closed:
+        polygon_points = np.array(image.clicked_points)
+        if len(polygon_points) > 0:  # Check if polygon_points is not empty
+            min_x, min_y = polygon_points.min(axis=0)
+            max_x, max_y = polygon_points.max(axis=0)
+            for i in range(int(min_y), int(max_y) + 1):
+                for j in range(int(min_x), int(max_x) + 1):
+                    if image.point_inside_polygon(j, i, polygon_points):
+                        mask[i, j] = False
+
+    # Apply Fourier transform
+    f_transform = np.fft.fft2(image.gray_img * mask)
+    f_shift = np.fft.fftshift(f_transform)
+    magnitude_spectrum = 20 * np.log(np.abs(f_shift))
+
+    # Apply inverse Fourier transform
+    f_shift_back = np.fft.ifftshift(f_shift)
+    img_back = np.fft.ifft2(f_shift_back)
+    img_back = np.abs(img_back)
+
+    # Plot the predicted values inside the polygon
+    plt.imshow(img_back, cmap='gray')
+    plt.axis('off')
+    plt.title('Predicted Values Inside Polygon')
+    plt.show()
