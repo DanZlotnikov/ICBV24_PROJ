@@ -7,13 +7,17 @@ if __name__ == '__main__':
     image.plot()
 
     # Call the function to divide the image into sub-images
-    subimages = divide_into_subimages(image.img)
+    subimages = divide_into_subimages(image)
 
     # Process the sub-images further if needed
+    num_subimages = len(subimages)
+    num_rows = 3
+    num_cols = num_subimages // num_rows
+
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=(12, 8))
     for i, subimage in enumerate(subimages):
-        # Perform operations on each sub-image
-        # For example, you can display each sub-image
-        plt.subplot(1, len(subimages), i + 1)
-        plt.imshow(subimage, cmap='gray')
-        plt.axis('off')
+        row = i // num_cols
+        col = i % num_cols
+        axes[col, row].imshow(subimage, cmap='gray')
+        axes[col, row].axis('off')
     plt.show()
