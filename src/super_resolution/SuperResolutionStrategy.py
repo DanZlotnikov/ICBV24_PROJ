@@ -8,7 +8,7 @@ class SuperResolutionStrategy:
     abstract Strategy class, which defines the interface for SuperResolutionStrategy
     """
     @abstractmethod
-    def upscale(self, image, scale_factor):
+    def upscale(self, image, scale_factor,threshold):
         raise NotImplementedError()
 
 
