@@ -4,6 +4,6 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    image = Image('./nadal.jpg')
+    image = Image('../../icbv_project_old_image_restoration/nadal.jpg')
     image.plot()
 
