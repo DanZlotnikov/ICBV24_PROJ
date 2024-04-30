@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing App</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style/index.css') }}">
+
+</head>
+<body>
+    <script src="{{ url_for('static', filename='scripts/index.js') }}"></script>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <div id="headline">Super Resolution and Image Completion</div>
+    <div id="content">
+        <div id="left-column">
+            <h2>Super Resolution</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                Select image to upload:
+                <input type="file" name="image" accept="image/*" required>
+                <br>
+                Scale factor (integer only):
+                <input type="text" name="scale" pattern="\d+" title="Integer only" required>
+                <br>
+                <input type="submit" value="Upload Image">
+            </form>
+            <form action="/process-image" method="post">
+                <input type="radio" name="method" value="average" required>Average of nearest pixels<br>
+                <input type="radio" name="method" value="gaussian">Gaussian of whole image<br>
+                <input type="radio" name="method" value="polynomial">Polynomial interpolation of the neighborhood<br>
+                <input type="submit" value="Enhance Image">
+            </form>
+        </div>
+
+        <div id="right-column">
+        {% if uploaded_image %}
+            <div id="image-container" style="position: relative; display: inline-block;">
+                <img id="uploadedImage" src="{{ url_for('uploaded_file', filename=uploaded_image) }}" alt="Uploaded Image" onload="onImageLoad()">
+                <canvas id="imageCanvas"></canvas>
+            </div>
+        {% endif %}
+        </div>
+    </div>
+
+    <div class="clear"></div>
+</body>
+</html>
