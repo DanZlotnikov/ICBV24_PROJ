@@ -21,17 +21,17 @@ class FullFFT2D:
         self.image = image
         return self
 
-    def predict(self, corrupted_x: int, corrupted_y: int, corrupted_width: int, corrupted_height: int) -> np.ndarray:
+    def predict(self, x: int, y: int, w: int, h: int) -> np.ndarray:
         """
         Predict the missing part of the image.
         
         Returns:
         - (np.ndarray): Predicted values.
         """
-        left = self.image[:, :corrupted_x]
-        right = self.image[:, corrupted_x + corrupted_width:]
-        top = self.image[:corrupted_y, :]
-        bottom = self.image[corrupted_y + corrupted_height:, :]
+        left = self.image[:, :x]
+        right = self.image[:, x + w:]
+        top = self.image[:y, :]
+        bottom = self.image[y + h:, :]
         regions = [left, right, top, bottom]
 
         # Applying FFT on each region
@@ -52,6 +52,6 @@ class FullFFT2D:
         average_fft = np.mean([fft * (frequency_sum > np.percentile(frequency_sum, 95)) for fft in fft_results_padded], axis=0)
         reconstructed_full  = np.fft.ifft2(average_fft).real
 
-        reconstructed_part = reconstructed_full[corrupted_x:corrupted_x + corrupted_width, corrupted_y:corrupted_y + corrupted_height]
+        reconstructed_part = reconstructed_full[x:x + w, y:y + h]
 
-        return reconstructed_part
+        return reconstructed_part.astype(int)
