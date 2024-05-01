@@ -37,7 +37,7 @@ class RelaxationSuperRes:
 
                         distance = abs(k - self.n_buckets) # interpolation_idx
                         if distance != 0:
-                            sigma = distance / math.sqrt(-2 * np.log(0.8))
+                            sigma = self.n_buckets / math.sqrt(-2 * np.log(0.125))
                         else:
                             sigma = 2
                         self.initial_confidence[i,j,k] = 0.8 * np.exp(-0.5 * (distance/sigma)**2)
@@ -59,7 +59,7 @@ class RelaxationSuperRes:
     def _calc_label(self, confidence):
         final_img = self.image.copy().astype(np.uint8)
         optimal_indices = (np.argmax(confidence, axis=-1) - self.n_buckets).astype(np.uint8)
-        final_img-=optimal_indices
+        final_img+=optimal_indices
         return final_img
     
     def predict(self, epsilon):
