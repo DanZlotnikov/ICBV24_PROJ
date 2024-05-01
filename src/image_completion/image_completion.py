@@ -29,24 +29,5 @@ def remove_rectangle(image_path, x, delta_x, y, delta_y):
     return modified_image
 
 
-def fft_complete_tiles(image, x, y, delta_x, delta_y):
-    updated_image = np.copy(image)
-    num_tiles = 5
-    diff_x = int(delta_x / num_tiles)
-    diff_y = int(delta_y / num_tiles)
-
-    for i in range(num_tiles):
-        for j in range(num_tiles):
-            start_x = x + i * diff_x
-            end_x = x + (i + 1) * diff_x
-            start_y = y + j * diff_y
-            end_y = y + (j + 1) * diff_y
-            reconstructed_part = fft_single_tile(updated_image, start_x, start_y, diff_x, diff_y)
-            updated_image[start_x: end_x, start_y: end_y] = reconstructed_part
-
-    return updated_image
-
-
-def fft_single_tile(image, x, y, delta_x, delta_y):
-    model = FullFFT2D().fit(image)
-    return model.predict(x, y, delta_x, delta_y)
+def fft_complete(method, image_name, x, y, delta_x, delta_y):
+    pass
