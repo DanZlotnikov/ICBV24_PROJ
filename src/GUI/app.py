@@ -66,7 +66,7 @@ def process_image():
         # Capture the form data
         method = request.form.get('method')
         scale = request.form.get('scale')
-        time.sleep(5)
+        time.sleep(1)
         before_image_name = image_name  # Extract this from the form as you have been
         after_image_name = 'processed_' + image_name  # Assuming you name the processed file this way
 
