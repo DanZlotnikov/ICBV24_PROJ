@@ -7,26 +7,47 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    color: #333;
 }
+
 .container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 80%;
+    margin-top: 40px;
 }
+
 .image-box {
     text-align: center;
     padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
 }
+
+.image-box:hover {
+    transform: translateY(-10px);
+}
+
 img {
-    width: 100%; /* You can adjust this depending on your needs */
+    width: 100%;
     height: auto;
+    border-radius: 8px;
 }
-h2{
+
+h2 {
     padding: 10px;
-
+    background-color: #4CAF50;
+    color: white;
+    margin: 0;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
-
-
-
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+}

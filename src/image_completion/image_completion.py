@@ -3,8 +3,9 @@ from src.image import Image
 import imageio
 import os
 
-def remove_rectangle(image_path, x, y, delta_x, delta_y):
-    image = Image(image_path)
+def remove_rectangle(image_path, x, delta_x, y, delta_y):
+    full_path = "../uploads/"+image_path
+    image = Image(full_path)
     height, width = image.gray_img.shape
 
     # Ensure the rectangle coordinates are within bounds
@@ -17,9 +18,10 @@ def remove_rectangle(image_path, x, y, delta_x, delta_y):
     modified_image = np.copy(image.gray_img)
 
     # Remove the rectangle from the image
-    modified_image[y:y + delta_y, x:x + delta_x] = 0
+    modified_image[y:delta_y+y, x:delta_x+x] = 0
 
-    output_directory = './uploads'
+
+    output_directory = '../uploads'
     os.makedirs(output_directory, exist_ok=True)
     imageio.imwrite(os.path.join(output_directory, image_path), modified_image)
 
