@@ -24,3 +24,7 @@ def remove_rectangle(image_path, x, y, delta_x, delta_y):
     imageio.imwrite(os.path.join(output_directory, image_path), modified_image)
 
     return modified_image
+
+
+def fft_complete_tiles(image, x, y, delta_x, delta_y):
+    pass
