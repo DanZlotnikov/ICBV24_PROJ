@@ -9,11 +9,16 @@ body {
     justify-content: center;
 }
 #headline {
+    position: fixed;
+    top: 0;
+    left: 0;
     background-color: #333;
+    font-size: 30px;
     color: #fff;
     padding: 10px 0;
     width: 100%;
     text-align: center;
+    z-index: 10;
     margin-bottom: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -21,10 +26,12 @@ body {
     width: 95%;
     margin: 20px auto;
     display: flex;
-    flex-wrap: wrap; /* This ensures that content will wrap if the screen is too small */
+    justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 #left-column {
-    flex: 1 1 40%; /* Use flex-basis for initial size, instead of width */
+    flex: 1 1 40%;
+    max-width: 800px;
     margin: 10px;
     box-sizing: border-box;
 }
@@ -34,16 +41,22 @@ body {
     align-items: center;
     padding: 10px;
 }
+h2{
+    padding: 10px;
+}
 img {
+    display: block;
+    margin: 0 auto;
     max-width: 100%;
     height: auto;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 form {
     background: #f9f9f9;
-    padding: 10px;
+    padding: 80px;
     border-radius: 8px;
     margin-bottom: 20px;
 }
@@ -93,12 +106,7 @@ label {
     top: 0;
     left: 0;
 }
-@media (max-width: 768px) {
-    #left-column, #right-column {
-        flex-basis: 100%;
-        max-width: 100%;
-    }
-}
+
 #loadingIndicator {
     position: fixed; /* or absolute */
     top: 50%;

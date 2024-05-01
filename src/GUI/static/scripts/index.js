@@ -1,34 +1,38 @@
- function onImageLoad() {
-      var image = document.getElementById('uploadedImage');
-      var canvas = document.getElementById('imageCanvas');
-      var ctx = canvas.getContext('2d');
+function onImageLoad() {
+    scrollToEnhanceSection()
+    var image = document.getElementById('uploadedImage');
+    var imagePath = image.getAttribute('src'); // This gets the full URL of the image
+    var imageName = imagePath.split('/').pop(); // This splits the path by '/' and gets the last segment
 
-      // Set canvas dimensions to match the image
-      canvas.width = image.width;
-      canvas.height = image.height;
+    var canvas = document.getElementById('imageCanvas');
+    var ctx = canvas.getContext('2d');
 
-      // Position the canvas over the image
-      canvas.style.position = 'absolute';
-      canvas.style.left = image.offsetLeft + 'px';
-      canvas.style.top = image.offsetTop + 'px';
+    // Set canvas dimensions to match the image
+    canvas.width = image.width;
+    canvas.height = image.height;
 
-      var canvas = document.getElementById('imageCanvas');
-      var ctx = canvas.getContext('2d');
-      var rect = {};
-      var drag = false;
+    // Position the canvas over the image
+    canvas.style.position = 'absolute';
+    canvas.style.left = image.offsetLeft + 'px';
+    canvas.style.top = image.offsetTop + 'px';
 
-      function init() {
-          canvas.addEventListener('mousedown', mouseDown, false);
-          canvas.addEventListener('mouseup', mouseUp, false);
-          canvas.addEventListener('mousemove', mouseMove, false);
-      }
+    var canvas = document.getElementById('imageCanvas');
+    var ctx = canvas.getContext('2d');
+    var rect = {};
+    var drag = false;
 
-      function mouseUp() {
-          drag = false;
-          // Now we have the rectangle coordinates, you can send them to the server
-          // This is an example, you need to implement the function to do the actual sending
-          sendRectToServer(rect);
-      }
+    function init() {
+        canvas.addEventListener('mousedown', mouseDown, false);
+        canvas.addEventListener('mouseup', mouseUp, false);
+        canvas.addEventListener('mousemove', mouseMove, false);
+    }
+
+    function mouseUp() {
+        drag = false;
+        // Now we have the rectangle coordinates, you can send them to the server
+        // This is an example, you need to implement the function to do the actual sending
+        sendRectToServer(rect);
+    }
 
     function getMousePos(canvas, evt) {
         var rect = canvas.getBoundingClientRect();
@@ -42,6 +46,7 @@
         var pos = getMousePos(canvas, e);
         rect.startX = pos.x;
         rect.startY = pos.y;
+        rect.Name = imageName;
         drag = true;
     }
 
@@ -53,19 +58,36 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.setLineDash([6]);
             ctx.strokeStyle = '#4CAF50'
+            ctx.fillStyle = 'rgba(76, 175, 80, 0.5)'; // semi-transparent green
+            ctx.fillRect(rect.startX, rect.startY, rect.w, rect.h); // Fill the rectangle with color
+
             ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
         }
     }
 
 
-      function sendRectToServer(rect) {
-          // Example AJAX call to send rectangle coordinates to the server
-          var xhr = new XMLHttpRequest();
-          xhr.open("POST", "/process-rect", true);
-          xhr.setRequestHeader("Content-Type", "application/json");
-          xhr.send(JSON.stringify(rect));
-      }
+    function sendRectToServer(rect) {
+        // Example AJAX call to send rectangle coordinates to the server
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/process-rect", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify(rect));
+    }
 
-      init();
-  }
+    init();
+}
 
+
+function scrollToEnhanceSection() {
+    // Get the element you want to scroll to
+    var element = document.getElementById("enhanceImageSection");
+    // Use scrollIntoView to scroll to the element
+    element.scrollIntoView({ behavior: 'smooth' });
+}
+
+
+window.onload = function() {
+// Set the hidden input's value to the image source
+var imageSrc = document.getElementById('uploadedImage').src;
+document.getElementById('imageSrc').value = imageSrc;
+};
