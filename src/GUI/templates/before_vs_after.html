@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style/index.css') }}">
+    <title>Image Comparison</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .image-box {
+            text-align: center;
+            padding: 10px;
+        }
+        img {
+            width: 100%; /* You can adjust this depending on your needs */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="image-box">
+            <h2>Before</h2>
+            <img src="{{ url_for('uploaded_file', filename=before_image_name) }}" alt="Before Image">
+
+        </div>
+        <div class="image-box">
+            <h2>After</h2>
+                <img src="{{ url_for('processed_file', filename=after_image_name) }}" alt="After Image">
+        </div>
+    </div>
+</body>
+</html>
