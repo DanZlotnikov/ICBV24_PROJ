@@ -48,13 +48,13 @@ class RelaxationSuperRes:
     
     def _update_confidence(self, confidence, support):
         next_confidence = np.ones_like(confidence)
-        confidence_sum = np.zeros_like(confidence)
+        confidence_sum = np.zeros_like(self.image)
         height, width = self.image.shape
         for i in range(height):
             for j in range(width):
                 next_confidence[i][j] = confidence[i][j] * support[i][j]
-                confidence_sum[i][j] += next_confidence[i][j]
-        return next_confidence/ confidence_sum , np.sum(confidence_sum)
+                next_confidence[i][j] /= np.sum(next_confidence[i][j])
+        return next_confidence , np.sum(confidence_sum)
 
     def _calc_label(self, confidence):
         final_img = self.image.copy().astype(np.uint8)
