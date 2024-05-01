@@ -5,33 +5,36 @@ from scipy.ndimage import gaussian_filter
 import cv2
 
 
-def dist(x,y,thres): # calc the distance between pixel values and set the confidence accordingly
+def dist(x, y, thres):  # calc the distance between pixel values and set the confidence accordingly
     # need to set it in a gaussian way
-    d= np.linalg.norm(x-y)
+    d = np.linalg.norm(x - y)
     if d > thres:
         return 0.9
     else:
         return 0.01
 
-def calc_initial_confidence(scaled_image,base_pixels):
-    initial_confidence = np.ones((scaled_image.shape[0],scaled_image.shape[1],21))
-    h,w = scaled_image.shape
+
+def calc_initial_confidence(scaled_image, base_pixels):
+    initial_confidence = np.ones((scaled_image.shape[0], scaled_image.shape[1], 21))
+    h, w = scaled_image.shape
     interpolation_idx = 10
     for i in range(h):
         for j in range(w):
-            for k in enumerate(initial_confidence[i,j]):
-                distance = abs(k-interpolation_idx)
-                sigma = distance/math.sqrt(-2* np.log(0.8))
-                if (i,j) in base_pixels:
-                    if k==10:
-                        initial_confidence[i,j,k] = 0.99
+            for k in enumerate(initial_confidence[i, j]):
+                distance = abs(k - interpolation_idx)
+                sigma = distance / math.sqrt(-2 * np.log(0.8))
+                if (i, j) in base_pixels:
+                    if k == 10:
+                        initial_confidence[i, j, k] = 0.99
                     else:
-                        initial_confidence[i, j,k] = 0.001
+                        initial_confidence[i, j, k] = 0.001
                 else:
-                    initial_confidence[i,j,k] = 0.8 * max.exp(-0.5 * (distance/sigma)**2)
+                    initial_confidence[i, j, k] = 0.8 * max.exp(-0.5 * (distance / sigma) ** 2)
 
     return initial_confidence
-def upscale(image, scale_factor,thres):
+
+
+def upscale(image, scale_factor, thres):
     """
     upscales the image by the scale factor using interpoltion to assign the new values to the upscaled image(initial labels
     :param image:
@@ -41,7 +44,7 @@ def upscale(image, scale_factor,thres):
     height, width = image.shape
 
     # Create an upscaled image with the same dimensions
-    n_img = np.resize(image,( height*scale_factor,width*scale_factor))
+    n_img = np.resize(image, (height * scale_factor, width * scale_factor))
     n_image = np.zeros_like(n_img, dtype=np.uint8)
     upscaled_image = np.zeros_like(n_img, dtype=np.uint8)
 
@@ -67,8 +70,9 @@ def upscale(image, scale_factor,thres):
                         )
                     # initial_labels[y,x] = image[y, x] # init the labels to the base_pixels values
 
-
     return upscaled_image, base_pixels
+
+
 #
 #
 def gaussian_kernel(image_shape, sigma):
@@ -77,10 +81,13 @@ def gaussian_kernel(image_shape, sigma):
     kernel = gaussian_filter(np.zeros(image_shape), sigma=sigma)
 
     return kernel / np.sum(kernel)
+
+
 #
 
-def calc_supp(kernel,curr_conf):
-    pass
+def calc_supp(kernel, curr_conf):
+    return np.array([convolve2d(curr_conf[:, :, label], kernel, mode='same') for label in
+                     range(21)]).transpose(1, 2, 0)
 
 
 def update_confidence(image, confidence, support):
@@ -98,16 +105,16 @@ def update_label(conff):
     pass
 
 
-def relaxation_labeling(image,scale_factor,epsilon):
-    scaled_image,base_pixels = upscale(image, scale_factor, 0.5)
+def relaxation_labeling(image, scale_factor, epsilon):
+    scaled_image, base_pixels = upscale(image, scale_factor, 0.5)
     # # ____
     kernel = gaussian_kernel(scaled_image.shape, scale_factor)
-    curr_conf = calc_initial_confidence(scaled_image,base_pixels)
+    curr_conf = calc_initial_confidence(scaled_image, base_pixels)
     k = 0  # counts the iteration number
     while True:
-        support = calc_supp(kernel,curr_conf)
-        next_conf = update_confidence(scaled_image,curr_conf, support)
-        diff = np.linalg.norm(curr_conf.values() - next_conf.values()) #TODO: need to think about avg measurement?
+        support = calc_supp(kernel, curr_conf)
+        next_conf = update_confidence(scaled_image, curr_conf, support)
+        diff = np.linalg.norm(curr_conf.values() - next_conf.values())  # TODO: need to think about avg measurement?
         curr_conf = next_conf
         k += 1
         if diff < epsilon:
@@ -115,14 +122,13 @@ def relaxation_labeling(image,scale_factor,epsilon):
     return update_label(next_conf)
 
 
-
 def upsample_image(input_image, target_resolution):
     # Define the target resolutions
     HD_RESOLUTION = (1280, 720)
     FHD_RESOLUTION = (1920, 1080)
     QHD_RESOLUTION = (2560, 1440)
-    h,w,c = input_image.shape
-    DOUBLE = (4*w,4*h)
+    h, w, c = input_image.shape
+    DOUBLE = (4 * w, 4 * h)
 
     # Get the input image dimensions
     height, width, channels = input_image.shape
@@ -146,23 +152,19 @@ def upsample_image(input_image, target_resolution):
     return output_image
 
 
-
-
-
 if __name__ == '__main__':
-
     input_image_path = "nadal.jpg"
     target_resolution = "QHD"
     # Load the input image
     input_image = cv2.imread(input_image_path)
-    input_image = cv2.resize(input_image, (200,200), interpolation=cv2.INTER_AREA)
+    input_image = cv2.resize(input_image, (200, 200), interpolation=cv2.INTER_AREA)
     output1_image_path = f"downsampled_{target_resolution.lower()}_image.jpg"
     cv2.imwrite(output1_image_path, input_image)
 
     # Upsample the image
     gray_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
     scale_factor = 10
-    good = relaxation_labeling(gray_image, scale_factor,0.5)
+    good = relaxation_labeling(gray_image, scale_factor, 0.5)
     # upsampled_image = upsample_image(input_image, target_resolution)
     # # Save the upsampled image
     # if upsampled_image is not None:
@@ -178,5 +180,3 @@ if __name__ == '__main__':
     print("before:", gray_image.shape)
     print("after:", good.shape)
     # print("Denoised image saved as", output_image_path)
-
-
