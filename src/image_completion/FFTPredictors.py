@@ -1,4 +1,5 @@
 import numpy as np
+
 from darts.models import FFT
 from darts.timeseries import TimeSeries
 from typing import Optional
