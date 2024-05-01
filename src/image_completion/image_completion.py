@@ -1,26 +1,26 @@
-import cv2 as cv
 import numpy as np
+from src.image import Image
+import imageio
+import os
 
-def point_inside_polygon(x, y, poly):
-    n = len(poly)
-    inside = False
-    p1x, p1y = poly[0]
-    for i in range(1, n + 1):
-        p2x, p2y = poly[i % n]
-        if y > min(p1y, p2y):
-            if y <= max(p1y, p2y):
-                if x <= max(p1x, p2x):
-                    if p1y != p2y:
-                        xinters = (y - p1y) * (p2x - p1x) / (p2y - p1y) + p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
-        p1x, p1y = p2x, p2y
-    return inside
+def remove_rectangle(image_path, x, y, delta_x, delta_y):
+    image = Image(image_path)
+    height, width = image.gray_img.shape
 
-def points_inside_polygon(points, polygon):
-    inside_points = []
-    for point in points:
-        x, y = point
-        if point_inside_polygon(x, y, polygon):
-            inside_points.append(point)
-    return inside_points
+    # Ensure the rectangle coordinates are within bounds
+    x = max(0, min(x, width - 1))
+    y = max(0, min(y, height - 1))
+    delta_x = max(0, min(delta_x, width - x))
+    delta_y = max(0, min(delta_y, height - y))
+
+    # Create a copy of the image
+    modified_image = np.copy(image.gray_img)
+
+    # Remove the rectangle from the image
+    modified_image[y:y + delta_y, x:x + delta_x] = 0
+
+    output_directory = './uploads'
+    os.makedirs(output_directory, exist_ok=True)
+    imageio.imwrite(os.path.join(output_directory, image_path), modified_image)
+
+    return modified_image
