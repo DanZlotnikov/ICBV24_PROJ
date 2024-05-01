@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
 
-from src.image_completion import remove_rectangle
+from src.image_completion.image_completion import remove_rectangle
 
 app = Flask(__name__, static_folder='static')
 app.config['UPLOAD_FOLDER'] = '../uploads/'
@@ -13,6 +13,7 @@ app.config['PROCESSED_FOLDER'] = '../processed/'
 
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
+x, x_delta, y, y_delta = 0,0,0,0
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -61,6 +62,19 @@ def processed_file(filename):
     return send_from_directory(app.config['PROCESSED_FOLDER'], filename)
 
 
+@app.route('/complete-image', methods=['POST'])
+def complete_image():
+    method = request.form.get('method')
+    print(method)
+    if method == 'Single':
+        pass
+    elif method == 'Full':
+        pass
+    elif method == 'Tiling':
+        pass
+
+    return 'Rectangle processed', 200
+
 @app.route('/process-image', methods=['POST'])
 def process_image():
     image_path = request.form['imageSrc']
@@ -88,3 +102,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
