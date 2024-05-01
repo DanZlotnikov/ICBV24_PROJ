@@ -37,5 +37,3 @@ if __name__ == '__main__':
     plt.imshow(modified, cmap='gray')
     plt.axis('off')  # Turn off axis
     plt.show()
-
-
