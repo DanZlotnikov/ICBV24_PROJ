@@ -6,9 +6,11 @@ import os
 
 from src.image_completion.axis_fft_2d import AxisFFTPartial
 from src.image_completion.full_fft_2d import FullFFT2D
+from src.image_completion.tile_fft_2d import TileFFT2D
 
 uploads_directory = '../uploads'
 processed_directory = '../processed'
+
 
 def remove_rectangle(image_name, x, delta_x, y, delta_y):
     full_path = uploads_directory + image_name
@@ -44,8 +46,8 @@ def fft_complete(method, image_name, x, y, delta_x, delta_y):
     elif method == 'Full':
         model = AxisFFTPartial.fit(image)
         reconstructed_part_from_full = model.predict(x, y, delta_x, delta_y)
-    elif method == 'TileFFT2D':
-        model = AxisFFTPartial.fit(image)
+    elif method == 'Tiling':
+        model = TileFFT2D.fit(image)
         reconstructed_part_from_full = model.predict(x, y, delta_x, delta_y)
 
     completed_image = np.copy(image)
