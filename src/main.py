@@ -5,8 +5,8 @@ import cv2
 from src.image_completion.full_fft_2d import FullFFT2D
 from src.image_completion.axis_fft_2d import AxisFFT2D
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     # Example 1: Image completion using full FFT 2d
     lenna_img = cv2.imread('./lenna.png', cv2.IMREAD_GRAYSCALE)
     model = FullFFT2D().fit(lenna_img)
@@ -33,7 +33,3 @@ if __name__ == '__main__':
     plt.axis('off')  # Turn off axis
     plt.show()
     
-    modified = remove_rectangle('./nadal.jpg', 100, 100, 500, 500)
-    plt.imshow(modified, cmap='gray')
-    plt.axis('off')  # Turn off axis
-    plt.show()
