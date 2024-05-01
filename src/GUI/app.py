@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
 
-from src.image_completion.image_completion import remove_rectangle
+from src.image_completion.image_completion import *
 
 app = Flask(__name__, static_folder='static')
 app.config['UPLOAD_FOLDER'] = '../uploads/'
@@ -14,7 +14,7 @@ app.config['PROCESSED_FOLDER'] = '../processed/'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
 x, x_delta, y, y_delta = 0, 0, 0, 0
-
+image_name_global = ""
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -40,7 +40,7 @@ def upload_file():
 
 @app.route('/process-rect', methods=['POST'])
 def process_rect():
-    global x, x_delta, y, y_delta
+    global x, x_delta, y, y_delta,image_name_global
     data = request.get_json()
     print(data)
     # Here you would add your logic to process the rectangle
@@ -50,6 +50,7 @@ def process_rect():
 
     x, x_delta, y, y_delta = int(x), int(x_delta), int(y), int(y_delta)
     imageName = data['Name']
+    image_name_global = imageName
     remove_rectangle(imageName, x, x_delta, y, y_delta)
     return 'Rectangle processed', 200
 
@@ -66,11 +67,10 @@ def processed_file(filename):
 
 @app.route('/complete-image', methods=['POST'])
 def complete_image():
-    global x, x_delta, y, y_delta
+    global x, x_delta, y, y_delta, image_name_global
     method = request.form.get('method')
-    print(method)
     if method == 'Single':
-        pass
+        fft_complete(method,image_name_global,x, x_delta, y, y_delta)
     elif method == 'Full':
         pass
     elif method == 'Tiling':
