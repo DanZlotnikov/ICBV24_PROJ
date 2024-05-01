@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Processing</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style/index.css') }}">
+</head>
+<body>
+    <script src="{{ url_for('static', filename='scripts/index.js') }}"></script>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <div id="headline">Super Resolution and Image Completion</div>
+    <div id="content">
+        <div id="left-column">
+            <h2>Super Resolution</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                Select image to upload:
+                <input type="file" name="image" accept="image/*" required>
+                <br>
+                <input type="submit" value="Upload Image" >
+            </form>
+            <div id="enhanceImageSection">
+                <form id="processImageForm" action="/process-image" method="post">
+                    <input type="radio" name="method" value="average" required>Average of nearest pixels<br>
+                    <input type="radio" name="method" value="gaussian">Gaussian of whole image<br>
+                    <input type="radio" name="method" value="polynomial">Polynomial interpolation of the neighborhood<br>
+                    Scale factor (integer only):
+                    <input type="text" name="scale" pattern="\d+" title="Integer only" required><br>
+                    <input type="hidden" name="imageSrc" id="imageSrc" value="">
+                    <input type="submit" value="Enhance Image">
+                </form>
+            </div>
+                <h2>Image completion</h2>
+                <form id="completeImageForm" action="/complete-image" method="post">
+                <input type="radio" name="method" value="method1" required>method1<br>
+                <input type="radio" name="method" value="method2" required>method2<br>
+                <input type="radio" name="method" value="method3" required>method3<br>
+                Scale factor (integer only):
+                <input type="text" name="param1" pattern="\d+" title="Integer only" required>
+                Scale factor (integer only):
+                <input type="text" name="param2" pattern="\d+" title="Integer only" required>
+                Scale factor (integer only):
+                <input type="text" name="param3" pattern="\d+" title="Integer only" required>
+                <input type="submit" value="Complete Image">
+            </form>
+        </div>
+
+        <div id="right-column">
+        {% if uploaded_image %}
+            <div id="image-container" style="position: relative; display: inline-block;">
+                <img id="uploadedImage" src="{{ url_for('uploaded_file', filename=uploaded_image) }}" alt="Uploaded Image" onload="onImageLoad()">
+                <canvas id="imageCanvas"></canvas>
+            </div>
+        {% endif %}
+        <div id="loadingIndicator">
+            <p>Processing image, please wait...</p>
+            <div class="spinner"></div>
+        </div>
+            <script>
+            document.getElementById('processImageForm').addEventListener('submit', function() {
+                document.getElementById('loadingIndicator').style.display = 'block';
+            });
+            </script>
+
+        </div>
+    </div>
+
+    <div class="clear"></div>
+</body>
+</html>

@@ -1,18 +1,26 @@
-# image_processing.py
+import numpy as np
+from src.image import Image
+import imageio
+import os
 
+def remove_rectangle(image_path, x, y, delta_x, delta_y):
+    image = Image(image_path)
+    height, width = image.gray_img.shape
 
-def divide_into_subimages(image):
-    gray = image.gray_img
-    x_markers = [0, int(image.rect_points[0][0]), int(image.rect_points[1][0]), gray.shape[1]]
-    y_markers = [0, int(image.rect_points[0][1]), int(image.rect_points[1][1]), gray.shape[0]]
+    # Ensure the rectangle coordinates are within bounds
+    x = max(0, min(x, width - 1))
+    y = max(0, min(y, height - 1))
+    delta_x = max(0, min(delta_x, width - x))
+    delta_y = max(0, min(delta_y, height - y))
 
-    sub_images = []
+    # Create a copy of the image
+    modified_image = np.copy(image.gray_img)
 
-    # Loop through rows and columns to crop the image into 9 rectangles
-    for i in range(0, len(y_markers) - 1):
-        for j in range(0, len(x_markers) - 1):
-            cropped = image.gray_img[y_markers[j]:y_markers[j + 1], x_markers[i]:x_markers[i + 1]]
-            sub_images.append(cropped)
+    # Remove the rectangle from the image
+    modified_image[y:y + delta_y, x:x + delta_x] = 0
 
-    return sub_images
+    output_directory = './uploads'
+    os.makedirs(output_directory, exist_ok=True)
+    imageio.imwrite(os.path.join(output_directory, image_path), modified_image)
 
+    return modified_image

@@ -1,0 +1,32 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-top: 20px;
+}
+.image-box {
+    text-align: center;
+    padding: 10px;
+}
+img {
+    width: 100%; /* You can adjust this depending on your needs */
+    height: auto;
+}
+h2{
+    padding: 10px;
+
+}
+
+
+
+
