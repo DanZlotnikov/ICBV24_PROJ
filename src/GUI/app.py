@@ -5,6 +5,8 @@ from werkzeug.utils import secure_filename
 import os
 from urllib.parse import urlparse
 
+from src.image_completion import remove_rectangle
+
 app = Flask(__name__, static_folder='static')
 app.config['UPLOAD_FOLDER'] = '../uploads/'
 app.config['PROCESSED_FOLDER'] = '../processed/'
@@ -37,12 +39,15 @@ def upload_file():
 @app.route('/process-rect', methods=['POST'])
 def process_rect():
     data = request.get_json()
+    print(data)
     # Here you would add your logic to process the rectangle
     # For example, you could pass these coordinates to a function that processes the image
-    x, x_delta, y, y_delta = data['startX'], data['startX'] + data['w'], data['startY'], data['startY'] + data['h']
-    x, x_delta, y, y_delta = int(x), int(x_delta), int(y), int(y_delta)
-    print(x, x_delta, y, y_delta)
+    x, x_delta, y, y_delta = data['startX'], data['w'], data['startY'], data['h']
+    print( x, x_delta, y, y_delta)
 
+    x, x_delta, y, y_delta = int(x), int(x_delta), int(y), int(y_delta)
+    imageName = data['Name']
+    remove_rectangle(imageName,x, x_delta, y, y_delta)
     return 'Rectangle processed', 200
 
 

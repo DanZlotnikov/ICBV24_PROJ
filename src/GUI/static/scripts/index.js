@@ -27,8 +27,11 @@ function onImageLoad() {
         canvas.addEventListener('mousemove', mouseMove, false);
     }
 
-    function mouseUp() {
+    function mouseUp(e) {
         drag = false;
+        var pos = getMousePos(canvas, e);
+        rect.w = pos.x - rect.startX;
+        rect.h = pos.y - rect.startY;
         // Now we have the rectangle coordinates, you can send them to the server
         // This is an example, you need to implement the function to do the actual sending
         sendRectToServer(rect);
@@ -60,7 +63,6 @@ function onImageLoad() {
             ctx.strokeStyle = '#4CAF50'
             ctx.fillStyle = 'rgba(76, 175, 80, 0.5)'; // semi-transparent green
             ctx.fillRect(rect.startX, rect.startY, rect.w, rect.h); // Fill the rectangle with color
-
             ctx.strokeRect(rect.startX, rect.startY, rect.w, rect.h);
         }
     }
@@ -89,5 +91,7 @@ function scrollToEnhanceSection() {
 window.onload = function() {
 // Set the hidden input's value to the image source
 var imageSrc = document.getElementById('uploadedImage').src;
+
 document.getElementById('imageSrc').value = imageSrc;
 };
+
