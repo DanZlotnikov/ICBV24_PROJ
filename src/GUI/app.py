@@ -1,14 +1,18 @@
+import time
+
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash
 from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__, static_folder='static')
-app.config['UPLOAD_FOLDER'] = 'uploads/'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = '../uploads/'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
+
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -27,21 +31,38 @@ def upload_file():
         return render_template('index.html', uploaded_image=filename)
 
 
+
 @app.route('/process-rect', methods=['POST'])
 def process_rect():
     data = request.get_json()
     # Here you would add your logic to process the rectangle
     # For example, you could pass these coordinates to a function that processes the image
-    x,x_delta,y,y_delta = data['startX'],data['startX']+data['w'],data['startY'],data['startY']+data['h']
-    x,x_delta,y,y_delta = int(x), int(x_delta), int(y), int(y_delta)
-    print(x,x_delta,y,y_delta)
+    x, x_delta, y, y_delta = data['startX'], data['startX'] + data['w'], data['startY'], data['startY'] + data['h']
+    x, x_delta, y, y_delta = int(x), int(x_delta), int(y), int(y_delta)
+    print(x, x_delta, y, y_delta)
     return 'Rectangle processed', 200
 
+
+@app.route('/process-image', methods=['POST'])
+def process_image():
+    if request.method == 'POST':
+        # Capture the form data
+        method = request.form.get('method')
+        scale = request.form.get('scale')
+        time.sleep(5)
+        return 'Rectangle processed', 200
+
+
+@app.route('/')
+def index():
+    # Ensure the template can handle being called without parameters initially
+    return render_template('index.html', method=None, scale=None)
 
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

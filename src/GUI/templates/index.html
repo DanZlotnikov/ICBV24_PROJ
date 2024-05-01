@@ -27,15 +27,14 @@
                 Select image to upload:
                 <input type="file" name="image" accept="image/*" required>
                 <br>
-                Scale factor (integer only):
-                <input type="text" name="scale" pattern="\d+" title="Integer only" required>
-                <br>
                 <input type="submit" value="Upload Image">
             </form>
-            <form action="/process-image" method="post">
+            <form id="processImageForm" action="/process-image" method="post">
                 <input type="radio" name="method" value="average" required>Average of nearest pixels<br>
                 <input type="radio" name="method" value="gaussian">Gaussian of whole image<br>
                 <input type="radio" name="method" value="polynomial">Polynomial interpolation of the neighborhood<br>
+                Scale factor (integer only):
+                <input type="text" name="scale" pattern="\d+" title="Integer only" required><br>
                 <input type="submit" value="Enhance Image">
             </form>
         </div>
@@ -47,6 +46,16 @@
                 <canvas id="imageCanvas"></canvas>
             </div>
         {% endif %}
+        <div id="loadingIndicator">
+            <p>Processing image, please wait...</p>
+            <div class="spinner"></div>
+        </div>
+            <script>
+            document.getElementById('processImageForm').addEventListener('submit', function() {
+                document.getElementById('loadingIndicator').style.display = 'block';
+            });
+            </script>
+
         </div>
     </div>
 
