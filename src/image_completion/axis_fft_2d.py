@@ -50,7 +50,7 @@ class AxisFFTPartial:
         return np.hstack([self._models[i].predict(n, num_samples, verbose).data_array() for i in range(self.image.shape[0])]).astype(int).reshape(self.image.shape)
         
 class AxisFFT2D:
-    def __init__(self, image:np.ndarray, weight_func:str='equal'):
+    def __init__(self, weight_func:str='equal', nr_freqs_to_keep: Optional[int] = 10, required_matches: Optional[set] = None, trend: Optional[str] = None, trend_poly_degree: int = 3):
         """
         Initialize the FFTRepair model.
         
@@ -58,10 +58,13 @@ class AxisFFT2D:
         - image (np.array): 2D array representing the grayscale image.
         - weight_func (str): The weight function to use for combining the predictions.
         """
-        self.image = image
         self.weight_func = weight_func
+        self.nr_freqs_to_keep = nr_freqs_to_keep
+        self.required_matches = required_matches
+        self.trend = trend
+        self.trend_poly_degree = trend_poly_degree
 
-    def fit(self, index, width, height, nr_freqs_to_keep: Optional[int] = 10, required_matches: Optional[set] = None, trend: Optional[str] = None, trend_poly_degree: int = 3):
+    def fit(self, image:np.ndarray):
         """
         Fit the model to the corrupted patch.
 
@@ -74,22 +77,11 @@ class AxisFFT2D:
         - trend (str): The trend to remove from the time series.
         - trend_poly_degree (int): The degree of the polynomial to fit the trend.
         """
-        left = self.image[index[0]:index[0]+height, max(0,index[1]-width):index[1]]
-        right = self.image[index[0]:index[0]+height, index[1]+width:min(index[1]+2*width, self.image.shape[1])]
-        top = self.image[max(0, index[0]-height):index[0], index[1]:index[1]+width]
-        bottom = self.image[index[0]+height:min(index[0]+2*height,self.image.shape[0]), index[1]:index[1]+width]
-
-        self.left_model = AxisFFTPartial(nr_freqs_to_keep, required_matches, trend, trend_poly_degree).fit(left)
-        self.right_model = AxisFFTPartial(nr_freqs_to_keep, required_matches, trend, trend_poly_degree).fit(np.flip(right, axis=1)) # Reverse the horizontal axis
-        self.top_model = AxisFFTPartial(nr_freqs_to_keep, required_matches, trend, trend_poly_degree).fit(np.transpose(top)) # Transpose the array
-        self.bottom_model = AxisFFTPartial(nr_freqs_to_keep, required_matches, trend, trend_poly_degree).fit(np.rot90(bottom, -1)) # Rotate the array 90 degrees clockwise
-
-        self.part_height = height
-        self.part_width = width
-
+        
+        self.image = image
         return self
     
-    def predict(self, num_samples: int = 1, verbose: bool = False):
+    def predict(self, x: int, y: int, w: int, h: int, num_samples: int = 1, verbose: bool = False) -> np.ndarray:
         """
         Predict the missing patch.
         
@@ -98,14 +90,24 @@ class AxisFFT2D:
         - verbose (bool): Whether to print the progress of the prediction.
         """
 
-        left = self.left_model.predict(self.part_width, num_samples, verbose)
-        right = np.flip(self.right_model.predict(self.part_height, num_samples, verbose),axis=1) # Reverse the horizontal axis
-        top = np.transpose(self.top_model.predict(self.part_height, num_samples, verbose)) # Transpose the array
-        bottom = np.rot90(self.bottom_model.predict(self.part_height, num_samples, verbose),1) # Rotate the array 90 degrees counterclockwise
+        left = self.image[y:y+h, max(0,x-w):x]
+        right = self.image[y:y+h, x+w:min(x+2*w, self.image.shape[1])]
+        top = self.image[max(0, y-h):y, x:x+w]
+        bottom = self.image[y+h:min(y+2*h, self.image.shape[0]), x:x+w]
+        
+        self.left_model = AxisFFTPartial(self.nr_freqs_to_keep, self.required_matches, self.trend, self.trend_poly_degree).fit(left)
+        self.right_model = AxisFFTPartial(self.nr_freqs_to_keep, self.required_matches, self.trend, self.trend_poly_degree).fit(np.flip(right, axis=1)) # Reverse the horizontal axis
+        self.top_model = AxisFFTPartial(self.nr_freqs_to_keep, self.required_matches, self.trend, self.trend_poly_degree).fit(np.transpose(top)) # Transpose the array
+        self.bottom_model = AxisFFTPartial(self.nr_freqs_to_keep, self.required_matches, self.trend, self.trend_poly_degree).fit(np.rot90(bottom, -1)) # Rotate the array 90 degrees clockwise
+
+        left = self.left_model.predict(w, num_samples, verbose)
+        right = np.flip(self.right_model.predict(w, num_samples, verbose),axis=1) # Reverse the horizontal axis
+        top = np.transpose(self.top_model.predict(h, num_samples, verbose)) # Transpose the array
+        bottom = np.rot90(self.bottom_model.predict(h, num_samples, verbose),1) # Rotate the array 90 degrees counterclockwise
 
         # Compute distance-based weights
-        vertical_weights = np.linspace(1, 1e-3, self.part_height).reshape(-1, 1)
-        horizontal_weights = np.linspace(1, 1e-3, self.part_width).reshape(1, -1)
+        vertical_weights = np.linspace(1, 1e-3, h).reshape(-1, 1)
+        horizontal_weights = np.linspace(1, 1e-3, w).reshape(1, -1)
 
         # Apply weights to predictions
         weighted_left = left * horizontal_weights
@@ -117,8 +119,8 @@ class AxisFFT2D:
             combined_prediction = (left + right + top + bottom) / 4
         elif self.weight_func == 'distance':
             weighted_sum = (weighted_left + weighted_right + weighted_top + weighted_bottom)
-            horizontal_weights_full = np.tile(horizontal_weights, (self.part_height, 1))
-            vertical_weights_full = np.tile(vertical_weights, (1, self.part_width))
+            horizontal_weights_full = np.tile(horizontal_weights, (h, 1))
+            vertical_weights_full = np.tile(vertical_weights, (1, w))
 
             weights_sum = horizontal_weights_full + np.flip(horizontal_weights_full, axis=1) + vertical_weights_full + np.flip(vertical_weights_full, axis=0)
 
