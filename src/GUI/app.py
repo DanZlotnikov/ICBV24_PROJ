@@ -13,7 +13,8 @@ app.config['PROCESSED_FOLDER'] = '../processed/'
 
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
-x, x_delta, y, y_delta = 0,0,0,0
+x, x_delta, y, y_delta = 0, 0, 0, 0
+
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -39,16 +40,17 @@ def upload_file():
 
 @app.route('/process-rect', methods=['POST'])
 def process_rect():
+    global x, x_delta, y, y_delta
     data = request.get_json()
     print(data)
     # Here you would add your logic to process the rectangle
     # For example, you could pass these coordinates to a function that processes the image
     x, x_delta, y, y_delta = data['startX'], data['w'], data['startY'], data['h']
-    print( x, x_delta, y, y_delta)
+    print(x, x_delta, y, y_delta)
 
     x, x_delta, y, y_delta = int(x), int(x_delta), int(y), int(y_delta)
     imageName = data['Name']
-    remove_rectangle(imageName,x, x_delta, y, y_delta)
+    remove_rectangle(imageName, x, x_delta, y, y_delta)
     return 'Rectangle processed', 200
 
 
@@ -64,6 +66,7 @@ def processed_file(filename):
 
 @app.route('/complete-image', methods=['POST'])
 def complete_image():
+    global x, x_delta, y, y_delta
     method = request.form.get('method')
     print(method)
     if method == 'Single':
@@ -72,8 +75,9 @@ def complete_image():
         pass
     elif method == 'Tiling':
         pass
-
+    print(x, x_delta, y, y_delta)
     return 'Rectangle processed', 200
+
 
 @app.route('/process-image', methods=['POST'])
 def process_image():
@@ -102,4 +106,3 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
