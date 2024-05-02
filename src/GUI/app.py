@@ -1,10 +1,7 @@
-import time
-
 from flask import Flask, render_template, request, redirect, send_from_directory, flash
 from werkzeug.utils import secure_filename
-import os
+from src.super_resolution.super_res_main import *
 from urllib.parse import urlparse
-
 from src.image_completion.image_completion import *
 
 app = Flask(__name__, static_folder='static')
@@ -69,15 +66,13 @@ def processed_file(filename):
 def complete_image():
     global x, x_delta, y, y_delta, image_name_global
     method = request.form.get('method')
-    if method == 'Single':
-        fft_complete(method,image_name_global,x, x_delta, y, y_delta)
-    elif method == 'Full':
-        pass
-    elif method == 'Tiling':
-        pass
-    print(x, x_delta, y, y_delta)
-    return 'Rectangle processed', 200
+    fft_complete(method,image_name_global,x, y, x_delta, y_delta)
+    before_image_name = image_name_global  # Extract this from the form as you have been
+    after_image_name = 'processed_' + image_name_global  # Assuming you name the processed file this way
 
+    return render_template('before_vs_after.html',
+                           before_image_name=before_image_name,
+                           after_image_name=after_image_name)
 
 @app.route('/process-image', methods=['POST'])
 def process_image():
@@ -89,7 +84,8 @@ def process_image():
         # Capture the form data
         method = request.form.get('method')
         scale = request.form.get('scale')
-        time.sleep(1)
+        bins = request.form.get('bins')
+        super_res(method,image_name,int(scale),int(bins))
         before_image_name = image_name  # Extract this from the form as you have been
         after_image_name = 'processed_' + image_name  # Assuming you name the processed file this way
 

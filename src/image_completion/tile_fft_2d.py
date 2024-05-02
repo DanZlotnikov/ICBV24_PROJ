@@ -35,6 +35,6 @@ class TileFFT2D:
                 start_y = y + j * diff_y
                 end_y = y + (j + 1) * diff_y
                 reconstructed_part = FullFFT2D().fit(updated_image).predict(start_x, start_y, diff_x, diff_y)
-                updated_image[start_x: end_x, start_y: end_y] = reconstructed_part
+                updated_image[start_y: end_y, start_x: end_x] = reconstructed_part
 
-        return updated_image[x: x + w, y: y + h].astype(int)
+        return updated_image[y: y + h, x: x + w].astype(int)

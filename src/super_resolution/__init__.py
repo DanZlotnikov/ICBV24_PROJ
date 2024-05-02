@@ -1,1 +1,1 @@
-from .super_resolution import *
+from src.super_resolution import *

@@ -4,7 +4,7 @@ from src.image import Image
 import imageio
 import os
 
-from src.image_completion.axis_fft_2d import AxisFFTPartial
+from src.image_completion.axis_fft_2d import AxisFFT2D
 from src.image_completion.full_fft_2d import FullFFT2D
 from src.image_completion.tile_fft_2d import TileFFT2D
 
@@ -13,7 +13,7 @@ processed_directory = '../processed'
 
 
 def remove_rectangle(image_name, x, delta_x, y, delta_y):
-    full_path = uploads_directory + image_name
+    full_path = os.path.join(uploads_directory, image_name)
     image = Image(full_path)
     height, width = image.gray_img.shape
 
@@ -36,24 +36,26 @@ def remove_rectangle(image_name, x, delta_x, y, delta_y):
 
 
 def fft_complete(method, image_name, x, y, delta_x, delta_y):
-    full_path = uploads_directory + image_name
+    full_path = os.path.join(uploads_directory, image_name)
     image = cv2.imread(full_path, cv2.IMREAD_GRAYSCALE)
     reconstructed_part_from_full = None
+    print("fft_complete ", method, image_name, x, y, delta_x, delta_y)
 
     if method == 'Single':
-        model = FullFFT2D().fit(image)
+        model = AxisFFT2D().fit(image)
         reconstructed_part_from_full = model.predict(x, y, delta_x, delta_y)
     elif method == 'Full':
-        model = AxisFFTPartial.fit(image)
+        print("Full ", method, image_name, x, y, delta_x, delta_y)
+        model = FullFFT2D().fit(image)
         reconstructed_part_from_full = model.predict(x, y, delta_x, delta_y)
     elif method == 'Tiling':
-        model = TileFFT2D.fit(image)
+        model = TileFFT2D().fit(image)
         reconstructed_part_from_full = model.predict(x, y, delta_x, delta_y)
 
     completed_image = np.copy(image)
-    completed_image[y:y+delta_y, x:x+delta_x] = reconstructed_part_from_full
+    completed_image[y:y+delta_y,x:x+delta_x] = reconstructed_part_from_full
 
-    new_path = os.path.join(processed_directory, image_name)
+    new_path = os.path.join(processed_directory, "processed_"+image_name)
     imageio.imwrite(new_path, completed_image)
     return True
 

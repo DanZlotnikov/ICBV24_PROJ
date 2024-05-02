@@ -29,11 +29,14 @@
                 <input type="submit" value="Upload Image" >
             </form>
             <div id="enhanceImageSection">
-                <h2>Super Resolution</h2>
+                <h2>Super Resolution Via Relaxation Labeling</h2>
                 <form id="processImageForm" action="/process-image" method="post">
-                    <input type="radio" name="method" value="average" required>Average of nearest pixels<br>
-                    <input type="radio" name="method" value="gaussian">Gaussian of whole image<br>
-                    <input type="radio" name="method" value="polynomial">Polynomial interpolation of the neighborhood<br>
+                    <input type="radio" name="method" value="g3x3" required>Gaussian 3 x 3<br>
+                    <input type="radio" name="method" value="g5x5">Gaussian 5 x 5<br>
+                    <input type="radio" name="method" value="l3x3">Linear 3 x 3<br>
+                    <input type="radio" name="method" value="l5x5">Linear 5 x 5<br>
+                    <input type="radio" name="method" value="o3x3">Ones  3 x 3<br>
+                    <input type="radio" name="method" value="o5x5">Ones 5 x 5<br>
                     Scale factor:
                     <input type="text" name="scale" pattern="\d+" title="Integer only" required>
                     Bins:

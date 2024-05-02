@@ -33,7 +33,6 @@ class FullFFT2D:
         top = self.image[:y, :]
         bottom = self.image[y + h:, :]
         regions = [left, right, top, bottom]
-
         # Applying FFT on each region
         fft_results = [np.fft.fft2(region) for region in regions]
         
@@ -52,6 +51,6 @@ class FullFFT2D:
         average_fft = np.mean([fft * (frequency_sum > np.percentile(frequency_sum, 95)) for fft in fft_results_padded], axis=0)
         reconstructed_full  = np.fft.ifft2(average_fft).real
 
-        reconstructed_part = reconstructed_full[x:x + w, y:y + h]
+        reconstructed_part = reconstructed_full[y:y + h, x:x + w]
 
         return reconstructed_part.astype(int)
