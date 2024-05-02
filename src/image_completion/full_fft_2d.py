@@ -28,10 +28,10 @@ class FullFFT2D:
         Returns:
         - (np.ndarray): Predicted values.
         """
-        left = self.image[:, :x]
-        right = self.image[:, x + w:]
-        top = self.image[:y, :]
-        bottom = self.image[y + h:, :]
+        left = self.image[y:y+h, max(x-w,0):x]
+        right = self.image[y:y+h, x + w:min(x+2*w, self.image.shape[1])]
+        top = self.image[max(0,y-h):y, x:x+w]
+        bottom = self.image[y + h:min(y+2*h,self.image.shape[0]), x:x+w]
         regions = [left, right, top, bottom]
         # Applying FFT on each region
         fft_results = [np.fft.fft2(region) for region in regions]
@@ -51,6 +51,6 @@ class FullFFT2D:
         average_fft = np.mean([fft * (frequency_sum > np.percentile(frequency_sum, 95)) for fft in fft_results_padded], axis=0)
         reconstructed_full  = np.fft.ifft2(average_fft).real
 
-        reconstructed_part = reconstructed_full[y:y + h, x:x + w]
+        # reconstructed_part = reconstructed_full[y:y + h, x:x + w]
 
-        return reconstructed_part.astype(int)
+        return reconstructed_full.astype(int)
