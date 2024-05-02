@@ -19,7 +19,7 @@ def relaxation_upscale(image, scale_factor):
                 for dx in range(scale_factor):
                     if dx == 0 and dy == 0:
                         upscaled_image[y * scale_factor + dy, x * scale_factor + dx] = image[y, x]
-                        base_pixels[(y, x)] = image[y, x]
+                        base_pixels[(y* scale_factor , x* scale_factor)] = image[y, x]
                     else:
                         weight_x = dx / scale_factor
                         weight_y = dy / scale_factor
