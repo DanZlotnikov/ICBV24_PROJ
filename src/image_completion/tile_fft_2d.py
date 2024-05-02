@@ -1,5 +1,5 @@
 import numpy as np
-from src.image_completion.full_fft_2d import FullFFT2D
+from full_fft_2d import FullFFT2D
 
 class TileFFT2D:
     def __init__(self, nr_freqs_to_keep: int = 10):
