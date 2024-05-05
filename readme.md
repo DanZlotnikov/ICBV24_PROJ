@@ -70,5 +70,5 @@ use the 'choose image' to choose the image you would like to process, then uploa
 <br> **notice**, the shape has to be drawn from top left to button right.
 <br>**notice** to reload the same picture, refresh the page.
 8. **choose image completion technique** and press the complete image button.
-<br><br>**watch this short demo how to complete missing patches**(notice how I draw the rectangle from top left to buttom right!)
+<br><br>**watch this short demo how to complete missing patches**(notice how I draw the rectangle from top left to buttom right!)<br>
 ![demo](vidGif.gif)
